@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 const axios = require('axios');
 const schedule = require('node-schedule');
 
-const USERNAME = 'codesmith17'; // Change this to your LeetCode username
+const USERS = ['codesmith17', 'krishna170902']; // List of usernames
 
 // Configure nodemailer with environment variables
 const transporter = nodemailer.createTransport({
@@ -49,7 +49,7 @@ async function fetchLeetCodePOTD() {
     }
 }
 
-// Fetch last 50 accepted submissions
+// Fetch last 50 accepted submissions for a user
 async function fetchRecentAcceptedSubmissions(username) {
     try {
         console.log(`📌 Fetching last 50 solved problems for user: ${username}...`);
@@ -70,37 +70,45 @@ async function fetchRecentAcceptedSubmissions(username) {
             return [];
         }
 
-        const solvedProblems = response.data.data.recentAcSubmissionList.map(q => q.titleSlug);
-        console.log(`✅ Solved Problems:`, solvedProblems);
-        return solvedProblems;
+        return response.data.data.recentAcSubmissionList.map(q => q.titleSlug);
     } catch (error) {
         console.error(`❌ Error fetching solved problems for ${username}:`, error.message);
         return [];
     }
 }
 
-// Check if POTD is solved and send an email
+// Check if both users solved POTD and send a single email
 async function sendReminder() {
-    console.log('🔍 Checking if POTD is solved...');
+    console.log('🔍 Checking if POTD is solved for both users...');
     const potd = await fetchLeetCodePOTD();
     if (!potd) {
         console.log('⚠️ Skipping email, could not fetch POTD.');
         return;
     }
 
-    const solvedProblems = await fetchRecentAcceptedSubmissions(USERNAME);
-    const isSolved = solvedProblems.includes(potd.titleSlug);
+    let results = [];
+    for (const user of USERS) {
+        const solvedProblems = await fetchRecentAcceptedSubmissions(user);
+        const isSolved = solvedProblems.includes(potd.titleSlug);
+        results.push({ user, isSolved });
+    }
 
     console.log(`📌 POTD: ${potd.title} (${potd.difficulty})`);
-    console.log(`🔎 Is POTD solved?`, isSolved ? '✅ Yes' : '❌ No');
+    console.log(`🔎 Solved Status:`, results);
+
+    let message = `Hey there!\n\nToday's LeetCode Problem of the Day:\n\n📌 Title: ${potd.title}\n⚡ Difficulty: ${potd.difficulty}\n🔗 Link: ${potd.link}\n\n`;
+
+    results.forEach(({ user, isSolved }) => {
+        message += `👤 **${user}**: ${isSolved ? '✅ Already solved! Enjoy your rest! 😎' : '❌ Not solved yet! Time to grind! ⚡'}\n\n`;
+    });
+
+    message += `🚀 Keep coding and improving!`;
 
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: process.env.EMAIL_USER, // Change if needed
-        subject: isSolved ? `✅ Hey, please rest!` : `⚡ Solve the LeetCode POTD fast!`,
-        text: isSolved
-            ? `Hey, great job!\n\nYou've already solved today's LeetCode Problem of the Day (${potd.title}).\nNo need to do it again. Enjoy your rest! 😎`
-            : `Hey there!\n\nToday's LeetCode Problem of the Day:\n\n📌 Title: ${potd.title}\n⚡ Difficulty: ${potd.difficulty}\n🔗 Link: ${potd.link}\n\nSolve it before it's too late!\n\n🚀 Happy coding!`
+        subject: `LeetCode POTD Status for ${USERS.join(' & ')}`,
+        text: message
     };
 
     console.log('📧 Sending email reminder...');
@@ -112,10 +120,11 @@ async function sendReminder() {
         }
     });
 }
+// Schedule at 10 AM IST (4:30 AM UTC)
+schedule.scheduleJob('30 4 * * *', sendReminder);
 
-// Schedule jobs at 10 AM and 10 PM
-schedule.scheduleJob('0 10 * * *', sendReminder); // 10 AM
-schedule.scheduleJob('0 22 * * *', sendReminder); // 10 PM
+// Schedule at 10 PM IST (4:30 PM UTC)
+schedule.scheduleJob('30 16 * * *', sendReminder);
 
 // Run once on script start
 sendReminder();
