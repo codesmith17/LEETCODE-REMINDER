@@ -85,25 +85,27 @@ async function sendReminder() {
     const potd = await fetchLeetCodePOTD();
     if (!potd) {
         console.log('⚠️ Skipping email, could not fetch POTD.');
+        process.exit(1);
         return;
     }
 
     let emailBody = `Hey there!\n\n📌 Today's LeetCode Problem of the Day:\n\nTitle: ${potd.title}\nDifficulty: ${potd.difficulty}\nLink: ${potd.link}\n\n`;
 
-    for (const user of USERS) {
-        const solvedProblems = await fetchRecentAcceptedSubmissions(user);
+    // Fetch submissions for all users concurrently
+    const results = await Promise.all(USERS.map(user => fetchRecentAcceptedSubmissions(user)));
+
+    USERS.forEach((user, index) => {
+        const solvedProblems = results[index];
         const isSolved = solvedProblems.includes(potd.titleSlug);
-
         console.log(`🔎 ${user} solved POTD?`, isSolved ? '✅ Yes' : '❌ No');
-
         emailBody += `👤 ${user}: ${isSolved ? '✅ Already Solved! 🎉' : '❌ Not Solved Yet! ⏳'}\n`;
-    }
+    });
 
     emailBody += `\n🚀 Keep coding and have a great day!`;
 
     const mailOptions = {
         from: process.env.EMAIL_USER,
-        to: process.env.EMAIL_USER, // Change if needed
+        to: process.env.SEND_EMAIL_USER, // Change if needed
         subject: `LeetCode POTD Status for ${new Date().toLocaleDateString()}`,
         text: emailBody
     };
@@ -112,8 +114,10 @@ async function sendReminder() {
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.error('❌ Error sending email:', error.message);
+            process.exit(1);
         } else {
             console.log('✅ Email sent successfully:', info.response);
+            process.exit(0);
         }
     });
 }
