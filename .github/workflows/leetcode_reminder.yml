@@ -23,4 +23,4 @@ jobs:
         env:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-          SEND_EMAIL_PASSWORD: ${{ secrets.SEND_EMAIL_PASSWORD }}
+          SEND_EMAIL_USER: ${{ secrets.SEND_EMAIL_USER }}
