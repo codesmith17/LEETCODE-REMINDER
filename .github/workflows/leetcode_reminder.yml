@@ -1,11 +1,10 @@
 name: LeetCode Reminder
-
 on:
   schedule:
-    - cron: "55 5 * * *"
-    - cron: "0 10 * * *"  # Runs at 10 AM UTC
-    - cron: "0 22 * * *"  # Runs at 10 PM UTC
-  workflow_dispatch:  # Allows manual runs
+    - cron: "58 5 * * *"    # 11:28 AM IST
+    - cron: "0 10 * * *"    # 3:30 PM IST
+    - cron: "0 22 * * *"    # 3:30 AM IST next day
+  workflow_dispatch:         # Allows manual runs
 
 jobs:
   send-reminder:
@@ -13,18 +12,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
-
       - name: Install dependencies
         run: npm install
-
       - name: Run script
         run: node index.js
         env:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-
