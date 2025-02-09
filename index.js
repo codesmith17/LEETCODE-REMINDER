@@ -3,9 +3,8 @@ const nodemailer = require('nodemailer');
 const axios = require('axios');
 const schedule = require('node-schedule');
 
-const USERS = ['codesmith17', 'krishna170902', 'rashmantri']; // LeetCode usernames
+const USERS = ['codesmith17', 'krishna170902', 'rashmantri'];
 
-// Configure nodemailer with environment variables
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -14,7 +13,6 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Fetch the LeetCode Problem of the Day (POTD)
 async function fetchLeetCodePOTD() {
     try {
         console.log('📌 Fetching LeetCode POTD...');
@@ -49,7 +47,6 @@ async function fetchLeetCodePOTD() {
     }
 }
 
-// Fetch last 50 accepted submissions for a user
 async function fetchRecentAcceptedSubmissions(username) {
     try {
         console.log(`📌 Fetching last 50 solved problems for user: ${username}...`);
@@ -79,7 +76,6 @@ async function fetchRecentAcceptedSubmissions(username) {
     }
 }
 
-// Check if POTD is solved for all users and send a summary email
 async function sendReminder() {
     console.log('🔍 Checking if POTD is solved...');
     const potd = await fetchLeetCodePOTD();
@@ -91,7 +87,6 @@ async function sendReminder() {
 
     let emailBody = `Hey there!\n\n📌 Today's LeetCode Problem of the Day:\n\nTitle: ${potd.title}\nDifficulty: ${potd.difficulty}\nLink: ${potd.link}\n\n`;
 
-    // Fetch submissions for all users concurrently
     const results = await Promise.all(USERS.map(user => fetchRecentAcceptedSubmissions(user)));
 
     USERS.forEach((user, index) => {
