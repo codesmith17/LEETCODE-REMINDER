@@ -102,10 +102,10 @@ async function sendReminder() {
     });
 
     emailBody += `\n🚀 Keep coding and have a great day!`;
-
+    const recipients = JSON.parse(process.env.SEND_EMAIL_USER);
     const mailOptions = {
         from: process.env.EMAIL_USER,
-        to: process.env.SEND_EMAIL_USER, // Change if needed
+        to: recipients, // Change if needed
         subject: `LeetCode POTD Status for ${new Date().toLocaleDateString()}`,
         text: emailBody
     };
