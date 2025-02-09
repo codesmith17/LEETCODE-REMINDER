@@ -2,7 +2,7 @@ name: LeetCode Reminder
 on:
   schedule:
     - cron: "30 4 * * *"    # 10:00 AM IST
-    - cron: "30 6 * * *"    # 12:00 PM IST
+    - cron: "30 7 * * *"    # 12:00 PM IST
     - cron: "30 16 * * *"   # 10:00 PM IST
   workflow_dispatch:         # For manual triggers
 
