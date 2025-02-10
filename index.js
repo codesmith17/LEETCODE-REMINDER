@@ -108,7 +108,7 @@ async function sendReminder() {
       text: emailBody
   };
   
-    if(numberOfDone<3) {
+    if(numberOfDone < USERS.length) {
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.error('❌ Error sending email:', error.message);
