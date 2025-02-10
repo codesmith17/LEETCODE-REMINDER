@@ -90,11 +90,14 @@ async function sendReminder() {
     const results = await Promise.all(USERS.map(user => fetchRecentAcceptedSubmissions(user)));
 
     USERS.forEach((user, index) => {
-        const solvedProblems = results[index];
-        const isSolved = solvedProblems.includes(potd.titleSlug);
-        console.log(`🔎 ${user} solved POTD?`, isSolved ? '✅ Yes' : '❌ No');
-        emailBody += `👤 ${user}: ${isSolved ? '✅ Already Solved! 🎉' : '❌ Not Solved Yet! ⏳'}\n`;
-    });
+      const solvedProblems = results[index];
+      const isSolved = solvedProblems.includes(potd.titleSlug);
+      console.log(`🔎 ${user} solved POTD?`, isSolved ? '✅ Yes' : '❌ No');
+  
+      const userLink = `<a href="https://leetcode.com/${user}/">${user}</a>`;
+      emailBody += `👤 ${userLink}: ${isSolved ? '✅ Already Solved! 🎉' : '❌ Not Solved Yet! ⏳'}<br>`;
+  });
+  
 
     emailBody += `\n🚀 Keep coding and have a great day!`;
     const mailOptions = {
