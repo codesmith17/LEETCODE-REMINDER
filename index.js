@@ -66,14 +66,22 @@ async function fetchRecentAcceptedSubmissions(username) {
           return [];
       }
 
-      console.log(`✅ Solved Problems API Response for ${username}:`, JSON.stringify(response.data, null, 2));
+      console.log(`✅ Solved Problems API Response for ${username}:`, JSON.stringify(response.data.data.recentAcSubmissionList, null, 2));
 
-      return response.data.data.recentAcSubmissionList.map(q => q.titleSlug);
+      // Correct IST Calculation
+      const now = new Date();
+      const today530AM_IST = Math.floor(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0)).getTime() / 1000);
+
+      const recentSubmissions = response.data.data.recentAcSubmissionList;
+      const questionSolvedToday = recentSubmissions.filter(q => q.timestamp >= today530AM_IST);
+
+      return questionSolvedToday.map(q => q.titleSlug);
   } catch (error) {
       console.error(`❌ Error fetching solved problems for ${username}:`, error.message);
       return [];
   }
 }
+
 
 
 async function sendReminder() {
