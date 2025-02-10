@@ -88,14 +88,15 @@ async function sendReminder() {
     let emailBody = `Hey there!\n\n📌 Today's LeetCode Problem of the Day:\n\nTitle: ${potd.title}\nDifficulty: ${potd.difficulty}\nLink: ${potd.link}\n\n`;
 
     const results = await Promise.all(USERS.map(user => fetchRecentAcceptedSubmissions(user)));
-
+    let numberOfDone = 0;
     USERS.forEach((user, index) => {
       const solvedProblems = results[index];
       const isSolved = solvedProblems.includes(potd.titleSlug);
       console.log(`🔎 ${user} solved POTD?`, isSolved ? '✅ Yes' : '❌ No');
-  
-      const userLink = `<a href="https://leetcode.com/u/${user}/">${user}</a>`;
-      emailBody += `👤 ${userLink}: ${isSolved ? '✅ Already Solved! 🎉' : '❌ Not Solved Yet! ⏳'}<br>`;
+      if(isSolved === true) {
+        numberOfDone++;
+      }
+      emailBody += `👤 ${user}: ${isSolved ? '✅ Already Solved! 🎉' : '❌ Not Solved Yet! ⏳'}\n`;
   });
   
 
@@ -107,9 +108,8 @@ async function sendReminder() {
       text: emailBody
   };
   
-
-    console.log('📧 Sending email reminder...');
-    transporter.sendMail(mailOptions, (error, info) => {
+    if(numberOfDone<3) {
+      transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.error('❌ Error sending email:', error.message);
             process.exit(1);
@@ -117,7 +117,11 @@ async function sendReminder() {
             console.log('✅ Email sent successfully:', info.response);
             process.exit(0);
         }
-    });
+      });
+    } else {
+      console.log("✅ All 3 have already solved today's POTD. Cancelling email sending procedure");
+      process.exit(0);
+    }
 }
 
 // Schedule jobs at 10 AM IST (4:30 AM UTC) and 10 PM IST (4:30 PM UTC)
