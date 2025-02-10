@@ -94,7 +94,7 @@ async function sendReminder() {
       const isSolved = solvedProblems.includes(potd.titleSlug);
       console.log(`🔎 ${user} solved POTD?`, isSolved ? '✅ Yes' : '❌ No');
   
-      const userLink = `<a href="https://leetcode.com/${user}/">${user}</a>`;
+      const userLink = `<a href="https://leetcode.com/u/${user}/">${user}</a>`;
       emailBody += `👤 ${userLink}: ${isSolved ? '✅ Already Solved! 🎉' : '❌ Not Solved Yet! ⏳'}<br>`;
   });
   
