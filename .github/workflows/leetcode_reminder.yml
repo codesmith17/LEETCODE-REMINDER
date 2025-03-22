@@ -3,6 +3,7 @@ on:
   schedule:
     - cron: "30 4 * * *"    # 10:00 AM IST
     - cron: "30 16 * * *"   # 10:00 PM IST
+    - cron: "30 18 * * *"   # 12:00 AM IST (for inactivity check)
   workflow_dispatch:         # For manual triggers
 
 jobs:
@@ -17,8 +18,27 @@ jobs:
           node-version: 18
       - name: Install dependencies
         run: npm install
-      - name: Run script
+      - name: Run LeetCode Reminder
         run: node index.js
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          SEND_EMAIL_USER: ${{ secrets.SEND_EMAIL_USER }}
+
+  check-inactivity:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '30 18 * * *'  # Only run at 12 AM IST
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm install
+      - name: Run Inactivity Check
+        run: node inactivity.js
         env:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
