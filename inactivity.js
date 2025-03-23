@@ -83,11 +83,14 @@ async function checkInactiveUsers() {
             } else {
                 console.log('✅ Inactivity email sent successfully:', info.response);
             }
+            process.exit(0);  // Exit the script after email is sent
         });
     } else {
         console.log('✅ सभी user active हैं! कोई issue नहीं।');
+        process.exit(0);  // Exit if all users are active
     }
 }
+
 
 // Run the check once
 checkInactiveUsers();
