@@ -135,3 +135,6 @@ async function sendReminder() {
 // Schedule jobs at 10 AM IST (4:30 AM UTC) and 10 PM IST (4:30 PM UTC)
 schedule.scheduleJob('30 4 * * *', sendReminder);  // 10 AM IST
 schedule.scheduleJob('30 16 * * *', sendReminder); // 10 PM IST
+
+// Run once on script start
+sendReminder();
