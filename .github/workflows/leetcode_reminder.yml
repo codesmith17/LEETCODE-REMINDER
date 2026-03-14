@@ -4,10 +4,15 @@ on:
     - cron: "30 4 * * *"    # 10:00 AM IST
     - cron: "30 16 * * *"   # 10:00 PM IST
     - cron: "30 18 * * *"   # 12:00 AM IST (for inactivity check)
+    - cron: "30 3 * * *"    # 09:00 AM IST contest status
+    - cron: "30 13 * * *"   # 07:00 PM IST contest status
+    - cron: "0 * * * 6,0"   # Hourly on Sat/Sun for ~1 hour contest reminder
+    - cron: "0 6 * * 1"     # Monday weekly rating check
   workflow_dispatch:         # For manual triggers
 
 jobs:
   send-reminder:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '30 4 * * *' || github.event.schedule == '30 16 * * *'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -16,8 +21,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-      - name: Install dependencies
-        run: npm install
       - name: Run LeetCode Reminder
         run: node index.js
         env:
@@ -33,9 +36,52 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-      - name: Install dependencies
-        run: npm install
       - name: Run Inactivity Check
         run: node inactivity.js
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+
+  contest-status:
+    if: github.event.schedule == '30 3 * * *' || github.event.schedule == '30 13 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Run Contest Status Check
+        run: MODE=contest-status node codesmith17-insights.js
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+
+  contest-reminder:
+    if: github.event.schedule == '0 * * * 6,0'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Run Contest One-Hour Reminder Check
+        run: MODE=contest-reminder node codesmith17-insights.js
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+
+  rating-weekly:
+    if: github.event.schedule == '0 6 * * 1'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Run Weekly Rating Check
+        run: MODE=rating-weekly node codesmith17-insights.js
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}

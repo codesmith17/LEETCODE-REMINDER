@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "reminder": "node index.js",
-    "inactivity": "node inactivity.js"
+    "inactivity": "node inactivity.js",
+    "insights:rating": "MODE=rating-weekly node codesmith17-insights.js",
+    "insights:contest-status": "MODE=contest-status node codesmith17-insights.js",
+    "insights:contest-reminder": "MODE=contest-reminder node codesmith17-insights.js"
   },
   "license": "ISC"
 }

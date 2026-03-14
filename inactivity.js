@@ -1,6 +1,10 @@
 const USERS = ['codesmith17', 'krishna170902'];
 const NTFY_TOPIC = process.env.NTFY_TOPIC;
 
+function toAsciiHeaderValue(value) {
+    return String(value).replace(/[^\x20-\x7E]/g, '-');
+}
+
 async function postJson(url, body) {
     const response = await fetch(url, {
         method: 'POST',
@@ -30,8 +34,8 @@ async function sendNtfyNotification(title, message, tags = 'alarm_clock') {
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
-                    Title: title,
-                    Tags: tags,
+                    Title: toAsciiHeaderValue(title),
+                    Tags: toAsciiHeaderValue(tags),
                     Priority: '4',
                     'Content-Type': 'text/plain; charset=utf-8'
                 },
