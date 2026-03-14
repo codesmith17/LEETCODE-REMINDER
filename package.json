@@ -1,0 +1,11 @@
+{
+  "name": "leetcode-reminder",
+  "version": "1.0.0",
+  "description": "LeetCode POTD and inactivity reminders via ntfy",
+  "main": "index.js",
+  "scripts": {
+    "reminder": "node index.js",
+    "inactivity": "node inactivity.js"
+  },
+  "license": "ISC"
+}
